@@ -1,13 +1,11 @@
 name: Image
 
 # Builds the production image on GitHub (the Coolify VPS has too little RAM to build it)
-# and publishes it to GHCR after CI passes on the deploy branch.
+# and publishes it to GHCR on every push to the deploy branch. The image job runs its own PDF smoke test;
+# workflow_run gating is not possible because the fork's default branch has no copy of this file.
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [deploy]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,13 +13,10 @@ permissions:
 
 jobs:
   image:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Build and push
         run: |
