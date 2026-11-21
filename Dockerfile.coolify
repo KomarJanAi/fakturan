@@ -1,3 +1,7 @@
 # Coolify on the VPS only pulls the prebuilt image (built by .github/workflows/image.yml),
 # because building Next.js there needs more RAM than the VPS has.
 FROM ghcr.io/komarjanai/fakturan:latest
+# The image has no curl/wget, so Coolify's health check runs `node /usr/local/bin/healthcheck.js`.
+USER root
+RUN printf '%s\n' "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" > /usr/local/bin/healthcheck.js
+USER node
