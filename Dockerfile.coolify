@@ -1,0 +1,3 @@
+# Coolify on the VPS only pulls the prebuilt image (built by .github/workflows/image.yml),
+# because building Next.js there needs more RAM than the VPS has.
+FROM ghcr.io/komarjanai/fakturan:latest
